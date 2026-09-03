@@ -1,0 +1,152 @@
+version: 2026.240.1943
+plugin-openclaw:
+    candy:
+        version: 2026.246.0100
+        description: |-
+            OUT-OF-TREE charly plugin serving the `openclaw` check verb — a standalone
+            Go module (go.mod + main.go) that probes a running OpenClaw 2.0 gateway,
+            served OUT-OF-PROCESS over go-plugin gRPC via the charly plugin SDK
+            (github.com/opencharly/sdk). charly's loader fetches this candy's repo,
+            go-builds the provider binary on the HOST, and serves it via LocalTransport —
+            so an authored `openclaw:` step dispatches through the provider registry
+            exactly like a built-in.
+
+            The verb PROBES the gateway two ways. HTTP probe methods (health/ready/startup)
+            hit the /healthz /readyz /startupz endpoints — the container-probe surface
+            OpenClaw 2.0 added for orchestrators — from the charly host against the
+            resolved gateway endpoint (cc.ResolveEndpoint + cc.HTTPDo, so one authored
+            step works unchanged against a pod's published port and a VM's forwarded one).
+            CLI methods (status/models/channels/version) run the `openclaw` binary INSIDE
+            the venue over the reverse channel (cc.Exec), where the gateway CLI connects
+            to the loopback gateway over WebSocket. All methods are read-only; there are
+            no mutating methods in this first cut.
+
+            It is NOT a re-skin of the generic `http:` verb. `http:` already covers URL +
+            status + body/header matchers, and this plugin exists for the two things it
+            structurally cannot do: ENDPOINT RESOLUTION (cc.ResolveEndpoint means one
+            authored step works unchanged against a pod's published port and a VM's
+            forwarded one) and DOMAIN SEMANTICS (methods map to the gateway's real probe
+            surface and return real verdicts, with `json_path:` to assert one field
+            instead of pattern-matching a JSON blob; the CLI methods run in-venue where
+            the gateway CLI lives, which `http:` cannot reach at all).
+
+            The R10 consumer is an openclaw-bearing bed (pod) whose check composes this
+            plugin alongside the `openclaw` candy from opencharly/pod-openclaw.
+        plugin:
+            source: github.com/opencharly/plugin-openclaw/candy/plugin-openclaw
+            providers:
+                - verb:openclaw
+            primary:
+                openclaw: method
+        plan:
+            - check: the openclaw verb dispatches through the provider registry and the gateway's /healthz liveness endpoint reports ok on a live deployment
+              id: openclaw-verb-dispatches
+              openclaw: health
+              stdout:
+                - contains: "ok"
+              eventually: 60s
+              retry_interval: 5s
+              context:
+                - runtime
+
+openclaw-skill:
+    skill:
+        name: openclaw
+        family: check
+        owner: plugin-openclaw
+        description: |-
+            the `openclaw:` check verb — probe a running OpenClaw 2.0 gateway (health/ready/startup
+            via the /healthz /readyz /startupz HTTP probe endpoints, status/models/channels/version
+            via the in-venue CLI), served out-of-process by plugin-openclaw.
+        triggers:
+            - "the `openclaw:` check verb / probing an OpenClaw gateway from a candy or box plan"
+        content: |
+            # openclaw — gateway check verb
+
+            ## Overview
+
+            `openclaw:` probes a running [OpenClaw](https://openclaw.ai) 2.0 gateway,
+            served out-of-process over go-plugin gRPC by `opencharly/plugin-openclaw`.
+            Install the gateway itself with `/charly-openclaw:openclaw`
+            (opencharly/pod-openclaw).
+
+            ## Why it is not the `http:` verb
+
+            `http:` already does URL + status + body/header matchers. This verb exists
+            for what `http:` structurally cannot do:
+
+            - **Endpoint resolution.** `cc.ResolveEndpoint` turns the in-venue gateway
+              port into a host-reachable address, so one authored step works unchanged
+              against a pod's published port and a VM's forwarded one.
+            - **Domain semantics.** Methods map to the gateway's real probe surface and
+              return real verdicts, with `json_path:` to assert one field instead of
+              pattern-matching a JSON blob.
+            - **In-venue CLI.** The status/models/channels methods run the `openclaw`
+              binary inside the venue over the reverse channel — `http:` cannot reach
+              the gateway CLI at all.
+
+            ## Methods
+
+            | Group | Methods |
+            |---|---|
+            | HTTP probes (host-side) | `health` (`/healthz` liveness) `ready` (`/readyz` readiness) `startup` (`/startupz` startup) |
+            | In-venue CLI | `status` (`openclaw status --all`) `models` (`openclaw models status`) `channels` (`openclaw channels status`) `version` (`openclaw --version`) |
+
+            All methods are read-only — there are no mutating methods in this first cut.
+
+            ## Input fields
+
+            | Field | Meaning |
+            |---|---|
+            | `method` | the operation (also the scalar-sugar primary: `openclaw: health`) |
+            | `port` | gateway port (default 18789) |
+            | `timeout` | HTTP probe timeout (default 10s) |
+            | `json_path` | dotted path into the response; stdout becomes that value |
+
+            ## Scalar shorthand
+
+            ```yaml
+            openclaw: health          # scalar sugar
+            openclaw:                 # map form — identical meaning
+              method: health
+            ```
+
+            Both parse. The sugar is enabled by this candy's `plugin.primary: {openclaw:
+            method}`, which charly reads in a PRE-CONNECT prescan — so the plugin candy
+            must be composed into the box that authors the step.
+
+            ## Examples
+
+            ```yaml
+            # Liveness — the 2.0 container probe.
+            - check: the gateway's /healthz liveness endpoint reports ok
+              openclaw: health
+              stdout: [{contains: ok}]
+              eventually: 60s
+              retry_interval: 5s
+              context: [runtime]
+
+            # Readiness — configured channels healthy.
+            - check: the gateway is ready
+              openclaw: ready
+              context: [runtime]
+
+            # Assert ONE field instead of matching a blob.
+            - check: the gateway reports ok
+              openclaw:
+                method: health
+                json_path: status
+              stdout: [{equals: ok}]
+              context: [runtime]
+
+            # Gateway state via the in-venue CLI.
+            - check: the gateway CLI reports its model status
+              openclaw: models
+              context: [runtime]
+            ```
+
+            ## Cross-References
+
+            - `/charly-openclaw:openclaw` — the candy that installs the gateway
+            - `/charly-check:check` — the check orchestrator, beds and the R10 sequence
+            - `/charly-internals:plugin` — the out-of-process plugin model this verb follows
