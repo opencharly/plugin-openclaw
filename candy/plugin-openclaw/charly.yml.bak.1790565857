@@ -1,5 +1,7 @@
+version: 2026.240.1943
 plugin-openclaw:
     candy:
+        version: 2026.246.0100
         description: |-
             OUT-OF-TREE charly plugin serving the `openclaw` check verb — a standalone
             Go module (go.mod + main.go) that probes a running OpenClaw 2.0 gateway,
@@ -46,6 +48,7 @@ plugin-openclaw:
               retry_interval: 5s
               context:
                 - runtime
+
 openclaw-skill:
     skill:
         name: openclaw
