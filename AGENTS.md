@@ -40,7 +40,7 @@ Canonical files:
   `validate / validate`, defined in `opencharly/.github`); this repo has **no**
   per-repo candy gate.
 - The live R10 witness is an openclaw-bearing bed (pod) whose check composes this
-  plugin alongside the `openclaw` candy from `opencharly/pod-openclaw`.
+  plugin alongside the `openclaw` candy from `opencharly/layer-openclaw`.
 
 ## Modify this repo
 
