@@ -1,7 +1,8 @@
 # plugin-openclaw
 
 The `openclaw:` check verb for OpenCharly — probe a running
-[OpenClaw](https://openclaw.ai) 2.0 gateway from a candy or box plan.
+[OpenClaw](https://openclaw.ai) 2.0 gateway from a candy or box plan. The probe
+surface is verified against npm `openclaw@2026.9.8`.
 
 The plugin is an out-of-tree Go module: charly fetches this repo at the pinned
 tag, go-builds the provider on the host, and serves it **out-of-process** over
@@ -18,7 +19,9 @@ The verb probes two ways:
 
 - **HTTP probes** (`health` / `ready` / `startup`) hit the `/healthz` `/readyz`
   `/startupz` endpoints from the charly host against the resolved gateway
-  endpoint.
+  endpoint. Per upstream, `/healthz` shows only that the process is alive, while
+  `/readyz` is the endpoint that reports recorded terminal database failures —
+  prefer `ready` when a check must gate on the gateway being usable.
 - **In-venue CLI** (`status` / `models` / `channels` / `version`) run the
   `openclaw` binary inside the venue over the reverse channel.
 

@@ -2,7 +2,8 @@ plugin-openclaw:
     candy:
         description: |-
             OUT-OF-TREE charly plugin serving the `openclaw` check verb — a standalone
-            Go module (go.mod + main.go) that probes a running OpenClaw 2.0 gateway,
+            Go module (go.mod + main.go) that probes a running OpenClaw 2.0 gateway
+            (the probe surface described below is verified against npm `openclaw@2026.9.8`),
             served OUT-OF-PROCESS over go-plugin gRPC via the charly plugin SDK
             (github.com/opencharly/sdk). charly's loader fetches this candy's repo,
             go-builds the provider binary on the HOST, and serves it via LocalTransport —
@@ -55,7 +56,8 @@ openclaw-skill:
         description: |-
             the `openclaw:` check verb — probe a running OpenClaw 2.0 gateway (health/ready/startup
             via the /healthz /readyz /startupz HTTP probe endpoints, status/models/channels/version
-            via the in-venue CLI), served out-of-process by plugin-openclaw.
+            via the in-venue CLI), served out-of-process by plugin-openclaw; the probe surface is
+            verified against npm `openclaw@2026.9.8`.
         triggers:
             - "the `openclaw:` check verb / probing an OpenClaw gateway from a candy or box plan"
         content: |
@@ -65,6 +67,7 @@ openclaw-skill:
 
             `openclaw:` probes a running [OpenClaw](https://openclaw.ai) 2.0 gateway,
             served out-of-process over go-plugin gRPC by `opencharly/plugin-openclaw`.
+            The probe surface below is verified against npm `openclaw@2026.9.8`.
             Install the gateway itself with `/charly-openclaw:openclaw`
             (opencharly/pod-openclaw).
 
@@ -87,7 +90,7 @@ openclaw-skill:
 
             | Group | Methods |
             |---|---|
-            | HTTP probes (host-side) | `health` (`/healthz` liveness) `ready` (`/readyz` readiness) `startup` (`/startupz` startup) |
+            | HTTP probes (host-side) | `health` (`/healthz` — liveness only) `ready` (`/readyz` — readiness, and the endpoint that reports recorded terminal database failures) `startup` (`/startupz` — startup progress) |
             | In-venue CLI | `status` (`openclaw status --all`) `models` (`openclaw models status`) `channels` (`openclaw channels status`) `version` (`openclaw --version`) |
 
             All methods are read-only — there are no mutating methods in this first cut.
