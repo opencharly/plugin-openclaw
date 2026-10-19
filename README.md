@@ -62,13 +62,14 @@ verb in a plan:
 - `candy/plugin-openclaw/` — the plugin module: `plugin.go` (provider + meta),
   `provider.go`, `methods.go`, `schema/openclaw.cue` (the self-contained
   `#OpenclawInput`), `params/cue_types_gen.go`, and `cmd/serve/main.go`.
-- `charly.yml` — the root project manifest (`discover: candy`) + the embedded
-  `openclaw-skill:` skill entity.
+- `charly.yml` — the root project manifest (`discover: candy`); it declares no
+  entities of its own. The `openclaw-skill:` skill entity lives in
+  `candy/plugin-openclaw/charly.yml` beside the candy it describes.
 - `.github/workflows/tag-on-merge.yml` — CalVer tag + `CHANGELOG/` on merge.
 
 ## Related
 
-- Owning skill: `/charly-check:openclaw` — the `openclaw:` check verb reference
+- Owning skill: `/charly-check:openclaw-check` — the `openclaw:` check verb reference
   (projected from this candy's own `openclaw-skill:` entity).
 - `/charly-openclaw:openclaw` — the candy that installs the gateway itself.
 - `/charly-internals:plugin` — the out-of-process plugin model this verb follows.

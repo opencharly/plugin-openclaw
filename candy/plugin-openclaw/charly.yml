@@ -50,7 +50,7 @@ plugin-openclaw:
 
 openclaw-skill:
     skill:
-        name: openclaw
+        name: openclaw-check
         family: check
         owner: plugin-openclaw
         description: |-
@@ -58,12 +58,19 @@ openclaw-skill:
             via the /healthz /readyz /startupz HTTP probe endpoints, status/models/channels/version
             via the in-venue CLI), served out-of-process by plugin-openclaw; the probe surface is
             verified against npm `openclaw@2026.9.8`.
+        category: commands
         triggers:
             - "the `openclaw:` check verb / probing an OpenClaw gateway from a candy or box plan"
         content: |
-            # openclaw — gateway check verb
+            # openclaw-check — gateway check verb
 
             ## Overview
+
+            The skill ID is `openclaw-check`, not `openclaw`: a skill's `name` is the
+            marketplace-wide-unique SKILL.md directory name, and family `openclaw` already
+            publishes `openclaw` (the gateway box, `opencharly/layer-openclaw`). Two entities
+            declaring one name project into two families and the umbrella's flat DSH binding
+            cannot represent both. The VERB is unchanged — an authored step is still `openclaw:`.
 
             `openclaw:` probes a running [OpenClaw](https://openclaw.ai) 2.0 gateway,
             served out-of-process over go-plugin gRPC by `opencharly/plugin-openclaw`.
