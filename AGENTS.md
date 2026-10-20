@@ -20,7 +20,7 @@ Canonical files:
 
 ## Load these skills first (R0)
 
-- `/charly-check:openclaw` — the `openclaw:` check verb reference (projected
+- `/charly-check:openclaw-cmd` — the `openclaw:` check verb reference (projected
   from this candy's own `openclaw-skill:` entity). Load before changing a method
   or its input schema.
 - `/charly-internals:plugin` — the plugin authoring reference: the `plugin:`
@@ -49,7 +49,7 @@ Canonical files:
   verb's `params/` struct, so a method change not mirrored in the schema desyncs
   the generated types.
 - Keep the `openclaw-skill:` entity in step with any method-surface change — it
-  is the projected source for `/charly-check:openclaw`.
+  is the projected source for `/charly-check:openclaw-cmd`.
 
 ## Landing
 

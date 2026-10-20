@@ -50,7 +50,7 @@ plugin-openclaw:
 
 openclaw-skill:
     skill:
-        name: openclaw
+        name: openclaw-cmd
         family: check
         owner: plugin-openclaw
         description: |-
