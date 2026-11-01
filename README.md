@@ -68,7 +68,7 @@ verb in a plan:
 
 ## Related
 
-- Owning skill: `/charly-check:openclaw` — the `openclaw:` check verb reference
+- Owning skill: `/charly-check:openclaw-cmd` — the `openclaw:` check verb reference
   (projected from this candy's own `openclaw-skill:` entity).
 - `/charly-openclaw:openclaw` — the candy that installs the gateway itself.
 - `/charly-internals:plugin` — the out-of-process plugin model this verb follows.
