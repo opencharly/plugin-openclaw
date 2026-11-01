@@ -24,17 +24,17 @@ type OpenclawInput struct {
 	// the resolved gateway endpoint; CLI methods (status/models/channels/version) run
 	// inside the venue where the `openclaw` binary is installed. All are read-only —
 	// there are no mutating methods in this first cut.
-	Method string `json:"method"`
+	Method string `yaml:"method,omitempty" json:"method"`
 
 	// port — the gateway port to probe. Default 18789 (the openclaw candy's published
 	// port, relayed from the loopback-bound gateway by socat).
-	Port int64 `json:"port,omitempty"`
+	Port int64 `yaml:"port,omitempty" json:"port,omitempty"`
 
 	// timeout — the HTTP probe timeout. Default 10s.
-	Timeout string `json:"timeout,omitempty"`
+	Timeout string `yaml:"timeout,omitempty" json:"timeout,omitempty"`
 
 	// json_path — a dotted path into the JSON response; when set, the verb's stdout is
 	// the value at that path rather than the whole document, so a `stdout:` matcher can
 	// assert one field without pattern-matching a blob.
-	JSONPath string `json:"json_path,omitempty"`
+	JSONPath string `yaml:"json_path,omitempty" json:"json_path,omitempty"`
 }
